@@ -93,6 +93,7 @@ def test_full_api_endpoints():
     assert exp_id in json_text
     assert "application/json" in json_res.media_type
 
-    # 10. CORS configuration check
+    # 10. CORS configuration check (explicit authorized origins, no unrestricted wildcard)
     assert "http://localhost:5173" in settings.CORS_ORIGINS
-    assert "*" in settings.CORS_ORIGINS
+    assert "http://127.0.0.1:5173" in settings.CORS_ORIGINS
+    assert "*" not in settings.CORS_ORIGINS

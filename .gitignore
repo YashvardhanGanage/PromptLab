@@ -1,24 +1,44 @@
-# Environments
+# Environments & Secrets
 .env
-.env.local
+.env.*
+!.env.example
 *.env
+*.env.local
 
-# Python
+# Python Environments & Caches
 __pycache__/
 *.py[cod]
 *$py.class
 venv/
+.venv/
 backend/venv/
+backend/.venv/
 .pytest_cache/
-*.db
-*.sqlite3
+.coverage
+htmlcov/
 
-# Node / Frontend
+# Local SQLite Databases & WAL Logs
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+promptlab.db
+
+# Node.js & Frontend Builds
 node_modules/
 frontend/node_modules/
-frontend/dist/
 dist/
-.DS_Store
+frontend/dist/
+.vite/
+frontend/.vite/
 
-# Logs
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs & Temporary Artifacts
 *.log
+scratch/

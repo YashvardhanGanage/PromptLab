@@ -2,7 +2,7 @@
 
 > **"Find prompt failures, understand why they happen, test improvements automatically, and select the best-performing prompt using measurable evidence."**
 
-PromptLab is a local-first, full-stack AI engineering platform designed to systematically evaluate, benchmark, and optimize LLM prompts using reproducible test suites, Scikit-learn classification metrics, and a bounded agentic optimizer.
+PromptLab is a full-stack, local-first AI engineering platform designed to systematically evaluate, benchmark, and optimize LLM prompts using reproducible test suites, Scikit-learn classification metrics, and a bounded agentic optimizer.
 
 ---
 
@@ -53,7 +53,7 @@ promptlab/
 ├── backend/
 │   ├── app/
 │   │   ├── api/                  # FastAPI REST endpoints
-│   │   │   ├── agent_runs.py     # Optimizer launch and status
+│   │   │   ├── agent_runs.py     # Optimizer launch, polling, and logs
 │   │   │   ├── dashboard.py      # Telemetry & trends
 │   │   │   ├── datasets.py       # Dataset upload, preview & partitioning
 │   │   │   ├── evaluations.py    # Benchmark evaluations & comparisons
@@ -73,7 +73,8 @@ promptlab/
 │   │   └── metrics.py            # Label parsers & statistical calculations
 │   ├── data/
 │   │   └── starter_sentiment.json # 30 benchmark examples
-│   ├── tests/                    # Pytest test suite (17 tests)
+│   ├── tests/                    # Pytest test suite (18 automated tests)
+│   ├── Dockerfile                # Production container specification
 │   ├── pytest.ini
 │   └── requirements.txt
 ├── frontend/
@@ -95,9 +96,11 @@ promptlab/
 │   │   ├── main.jsx              # React 18 DOM mount
 │   │   └── setupTests.js         # Vitest polyfills
 │   ├── package.json
+│   ├── vercel.json               # Vercel configuration for frontend/ root
 │   └── vite.config.js
-├── .env.example
-├── .gitignore
+├── .env.example                  # Environment configuration template
+├── .gitignore                    # Production git exclusions
+├── vercel.json                   # Vercel configuration for repo root
 └── README.md
 ```
 
@@ -112,7 +115,7 @@ promptlab/
 
 ---
 
-### Backend Setup
+### Backend Setup (Windows PowerShell)
 
 1. **Navigate to the backend directory**:
    ```powershell
@@ -125,22 +128,22 @@ promptlab/
    .\venv\Scripts\activate
    ```
 
-3. **Install dependencies**:
+3. **Install backend dependencies**:
    ```powershell
    pip install -r requirements.txt
    ```
 
 4. **Run the backend test suite**:
    ```powershell
-   pytest -v
+   pytest -v tests
    ```
-   *All 17 tests verify metric computation, dataset partitioning, failure analysis, and bounded agent optimization.*
+   *All 18 tests run with deterministic offline mocks and verify metrics, partitioning, and agent workflow in <5 seconds.*
 
-5. **Start the FastAPI server**:
+5. **Start the FastAPI backend server**:
    ```powershell
    uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
    ```
-   Interactive API documentation will be available at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+   *Interactive API documentation is available at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).*
 
 ---
 
@@ -156,7 +159,7 @@ promptlab/
    npm install
    ```
 
-3. **Run frontend tests**:
+3. **Run frontend unit tests**:
    ```powershell
    npm test
    ```
@@ -180,68 +183,84 @@ Copy `.env.example` to create your local `.env`:
 
 | Variable | Default Value | Description |
 | :--- | :--- | :--- |
-| `MOCK_LLM` | `true` | When `true`, uses instant deterministic mock LLM for offline testing without network/Ollama. Set to `false` for live Ollama inference. |
+| `MOCK_LLM` | `false` | When `true`, uses instant deterministic mock LLM for testing without network/Ollama. Set to `false` for live local Ollama inference. |
 | `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Base URL of your local Ollama instance. |
 | `DEFAULT_MODEL` | `llama3.2:1b` | Default model used for prompt evaluation and mutation. |
 | `DATABASE_PATH` | `./promptlab.db` | File path for persistent SQLite database. |
-| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Allowed origins for web browser requests. |
-| `VITE_API_URL` | `http://127.0.0.1:8000` | Backend API URL used by the frontend. |
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Allowed origins for web browser requests. In production, add your deployed Vercel URL. |
+| `VITE_API_URL` | `http://127.0.0.1:8000` | Backend API URL used by the frontend browser client. |
 
 ---
 
 ## 🧠 Using Local Ollama
 
-To run real LLM inference with Ollama on your Windows laptop:
+To run real LLM inference with Ollama on your Windows computer:
 
 1. Download and install Ollama from [ollama.ai](https://ollama.ai).
 2. Pull the recommended lightweight model:
    ```powershell
    ollama run llama3.2:1b
    ```
-3. Set `MOCK_LLM=false` in your `.env` or run the backend with:
+3. Set `MOCK_LLM=false` in your `.env`:
    ```powershell
    $env:MOCK_LLM="false"; uvicorn app.main:app --port 8000
    ```
-4. Check the **Settings & Diagnostics** page in PromptLab to verify that the status dot switches to green (**Ollama Online**).
+4. Verify live Ollama integration using the verification test:
+   ```powershell
+   python tests/verify_live_ollama.py
+   ```
+5. Check the **Settings & Diagnostics** page in PromptLab to verify that the status dot switches to green (**Ollama Online**).
+
+---
+
+## 🌐 Public Deployment Architecture
+
+### 1. Frontend Deployment on Vercel
+
+The frontend is a standard React + Vite single-page application configured with `vercel.json` for seamless routing.
+
+#### Deployment Steps:
+1. Push this repository to GitHub.
+2. Log into [Vercel](https://vercel.com) and click **"Add New Project"** -> **"Import Git Repository"**.
+3. Choose your PromptLab repository.
+4. **Project Settings**:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `frontend` (or leave as `.` if using root `vercel.json`)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+5. **Environment Variables**:
+   - Add `VITE_API_URL`: Set to your deployed backend URL (e.g., `https://promptlab-api.onrender.com`).
+   *Note: Never leave this as `http://127.0.0.1:8000` on a public Vercel deployment, as visitors' browsers cannot reach your local computer.*
+6. Click **Deploy**.
+
+---
+
+### 2. Backend Hosting Options
+
+FastAPI requires a persistent Python environment. Recommended deployment targets:
+
+#### Option A: Render / Railway / Fly.io (Container or Python Service)
+- **Runtime**: Python 3.12 or Docker (`backend/Dockerfile`).
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Persistent Disk**: Mount a persistent volume at `/app/data` and configure `DATABASE_PATH=/app/data/promptlab.db` so SQLite persists across container restarts.
+- **Environment Variables**:
+  - `MOCK_LLM`: `false` (if connected to remote Ollama) or `true` (for zero-latency demo mode).
+  - `CORS_ORIGINS`: Set to your Vercel frontend URL: `https://your-app.vercel.app`.
+  - `OLLAMA_BASE_URL`: URL of your hosted Ollama server or model endpoint.
+
+#### Option B: Local Mode with Vercel Frontend
+If you want to run Ollama locally on your GPU/laptop while using a Vercel-hosted frontend:
+1. Ensure your local FastAPI backend has `CORS_ORIGINS` set to include `https://your-app.vercel.app`.
+2. Configure `VITE_API_URL=http://localhost:8000` in Vercel for development/local access, or use a secure tunnel (e.g. Cloudflare Tunnels with authentication).
+*Warning: Never expose an unauthenticated Ollama port directly to the public internet.*
 
 ---
 
 ## 🔒 Security & Data Privacy
 
-- **Local-First Processing**: In both local Ollama mode and mock mode, all prompt evaluations run strictly on your machine. No user prompts or dataset contents are sent to third-party cloud APIs.
-- **Deterministic Seed Mocking**: In restricted sandbox environments or offline mode, the deterministic mock engine enables full test suite execution, failure categorization, and agent cycles without requiring open socket permissions.
+- **Local-First Processing**: In local Ollama mode and mock mode, all prompt evaluations run strictly on your machine. No user prompts or dataset contents are sent to third-party cloud APIs.
 - **Dataset Leakage Shield**: Prompt optimization is bounded strictly to the `train` partition. The held-out `test` partition is isolated from error inspection tools.
-
----
-
-## 🌐 Deployment Options
-
-### Frontend (Vercel)
-The frontend is built with standard Vite and React and is ready for Vercel deployment:
-- Root directory: `frontend`
-- Build command: `npm run build`
-- Output directory: `dist`
-- Environment variable: `VITE_API_URL` set to your backend's public or bridged URL.
-
-### Backend
-The backend can be run on any standard Linux or Windows host, or in Docker:
-```dockerfile
-FROM python:3.12-slim
-WORKDIR /app
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY backend/ .
-EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
----
-
-## ⚖️ Limitations & Realistic Trade-offs
-
-- **Small Dataset Generalization**: High accuracy on a 30-example starter benchmark does not prove universal real-world performance across different domains. Users should upload representative domain datasets.
-- **Local Model Capacity**: Lightweight models like `llama3.2:1b` run fast on low-RAM laptops, but complex multi-turn logic may require larger quantized models (`llama3.1:8b` or `mistral:7b`).
-- **Deterministic Label Matching**: Classification metrics evaluate label conformance and format adherence; they do not assess subjective or stylistic nuances beyond defined constraints.
+- **Strict CORS Control**: Unrestricted wildcards (`*`) are disabled in production; only explicitly configured origins are permitted.
 
 ---
 

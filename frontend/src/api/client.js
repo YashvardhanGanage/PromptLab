@@ -24,6 +24,17 @@ async function request(endpoint, options = {}) {
     }
     return await res.json();
   } catch (err) {
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      const isPublic = typeof window !== 'undefined' && 
+                       window.location.hostname !== 'localhost' && 
+                       window.location.hostname !== '127.0.0.1';
+      const hint = isPublic 
+        ? ` Cannot reach backend at ${API_BASE_URL}. Ensure your backend is deployed and VITE_API_URL is configured in Vercel.`
+        : ` Cannot connect to backend at ${API_BASE_URL}. Ensure the FastAPI server is running.`;
+      const enrichedErr = new Error(`Connection Error:${hint}`);
+      console.error(enrichedErr);
+      throw enrichedErr;
+    }
     console.error(`API Error on ${endpoint}:`, err);
     throw err;
   }
