@@ -71,6 +71,52 @@ def ensure_starter_dataset():
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (ex_id, dataset_id, split, inp, exp, json.dumps(extra), idx))
 
+        # Ensure a default starter experiment and baseline prompt exist
+        cursor.execute("SELECT id FROM experiments WHERE id = 'exp-starter-sentiment'")
+        exp_row = cursor.fetchone()
+        if not exp_row:
+            exp_id = "exp-starter-sentiment"
+            cursor.execute("""
+                INSERT INTO experiments (id, name, description, task_type, model, objective, config_json, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                exp_id,
+                "Sentiment Classification Benchmark",
+                "Benchmark and optimize prompts against 30 sentiment edge cases (negation, sarcasm, and mixed tones).",
+                "sentiment_classification",
+                "llama3.2:1b",
+                "maximize_accuracy",
+                json.dumps({"valid_labels": ["positive", "negative", "neutral"]}),
+                now_str,
+                now_str
+            ))
+
+            # Create Baseline Prompt (v1)
+            prompt_id = "prompt-starter-baseline"
+            sys_prompt = "You are a precise sentiment classifier. Output strictly one of: positive, negative, or neutral."
+            usr_template = "Text: {input}\nSentiment:"
+            cursor.execute("""
+                INSERT INTO prompts (
+                    id, experiment_id, version_num, name, system_prompt, user_template,
+                    output_format, valid_labels_json, json_schema_json, content_hash,
+                    is_best, author_type, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                prompt_id,
+                exp_id,
+                1,
+                "Baseline Sentiment Prompt (v1)",
+                sys_prompt,
+                usr_template,
+                "labels",
+                json.dumps(["positive", "negative", "neutral"]),
+                "{}",
+                compute_hash(f"{sys_prompt.strip()}|||{usr_template.strip()}"),
+                1,
+                "user",
+                now_str
+            ))
+
 class DatasetService:
     @staticmethod
     def list_datasets() -> list[dict]:

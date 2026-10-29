@@ -21,9 +21,9 @@ export function PromptLabView({ onNavigate }) {
   const [selectedPromptId, setSelectedPromptId] = useState('');
 
   // Prompt edit state
-  const [promptName, setPromptName] = useState('');
-  const [systemPrompt, setSystemPrompt] = useState('');
-  const [userTemplate, setUserTemplate] = useState('');
+  const [promptName, setPromptName] = useState('Baseline Prompt (v1)');
+  const [systemPrompt, setSystemPrompt] = useState('You are a precise sentiment classifier. Output strictly one of: positive, negative, or neutral.');
+  const [userTemplate, setUserTemplate] = useState('Text: {input}\nSentiment:');
   const [validLabels, setValidLabels] = useState('positive, negative, neutral');
   const [outputFormat, setOutputFormat] = useState('labels');
 
