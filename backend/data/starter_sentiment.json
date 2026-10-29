@@ -1,0 +1,182 @@
+[
+  {
+    "input": "The battery life on this laptop easily lasts all day. Highly recommended!",
+    "expected_output": "positive",
+    "category": "standard_positive",
+    "split": "train"
+  },
+  {
+    "input": "Worst customer support experience I have ever had. Complete waste of money.",
+    "expected_output": "negative",
+    "category": "standard_negative",
+    "split": "train"
+  },
+  {
+    "input": "The interface is straightforward and it does exactly what it promises.",
+    "expected_output": "positive",
+    "category": "standard_positive",
+    "split": "train"
+  },
+  {
+    "input": "It crashed three times within the first twenty minutes of use.",
+    "expected_output": "negative",
+    "category": "standard_negative",
+    "split": "train"
+  },
+  {
+    "input": "The food was surprisingly not bad at all despite the awful reviews.",
+    "expected_output": "positive",
+    "category": "negation",
+    "split": "train"
+  },
+  {
+    "input": "I am not happy with how they handled my refund request.",
+    "expected_output": "negative",
+    "category": "negation",
+    "split": "train"
+  },
+  {
+    "input": "I wouldn't say this product is terrible, but it's certainly not worth full price.",
+    "expected_output": "negative",
+    "category": "negation",
+    "split": "train"
+  },
+  {
+    "input": "Never once did I feel like my issues were ignored by their team.",
+    "expected_output": "positive",
+    "category": "negation",
+    "split": "train"
+  },
+  {
+    "input": "The screen quality is gorgeous, but the overheating issue makes it unusable.",
+    "expected_output": "negative",
+    "category": "mixed",
+    "split": "train"
+  },
+  {
+    "input": "Shipping took two weeks longer than promised, but the craftsmanship is exquisite.",
+    "expected_output": "positive",
+    "category": "mixed",
+    "split": "train"
+  },
+  {
+    "input": "The parcel was delivered on Tuesday afternoon via postal service.",
+    "expected_output": "neutral",
+    "category": "ambiguous",
+    "split": "train"
+  },
+  {
+    "input": "The software updated to version 4.2 yesterday.",
+    "expected_output": "neutral",
+    "category": "ambiguous",
+    "split": "train"
+  },
+  {
+    "input": "Oh marvelous, another system reboot right in the middle of unsaved work. Just brilliant!",
+    "expected_output": "negative",
+    "category": "sarcasm",
+    "split": "train"
+  },
+  {
+    "input": "Great, another unexpected maintenance window right before my final deadline.",
+    "expected_output": "negative",
+    "category": "sarcasm",
+    "split": "train"
+  },
+  {
+    "input": "Love it.",
+    "expected_output": "positive",
+    "category": "short",
+    "split": "train"
+  },
+  {
+    "input": "Awful.",
+    "expected_output": "negative",
+    "category": "short",
+    "split": "train"
+  },
+  {
+    "input": "Okay.",
+    "expected_output": "neutral",
+    "category": "short",
+    "split": "train"
+  },
+  {
+    "input": "We thoroughly analyzed this application over a four-month deployment cycle across three distributed development teams, monitoring throughput, error rates, developer onboarding velocity, and infrastructure resource consumption. The consensus was overwhelmingly favorable and team productivity surged.",
+    "expected_output": "positive",
+    "category": "long",
+    "split": "train"
+  },
+  {
+    "input": "After months of waiting for critical bug fixes promised in the quarterly roadmap, our engineering leadership decided to sunset the tool due to endless downtime, unpatched memory leaks, and unresponsive vendor support.",
+    "expected_output": "negative",
+    "category": "long",
+    "split": "train"
+  },
+  {
+    "input": "The product dimensions are 12 inches by 8 inches with a weight of 1.4 kilograms.",
+    "expected_output": "neutral",
+    "category": "ambiguous",
+    "split": "train"
+  },
+  {
+    "input": "The noise cancellation is sublime; it made my transcontinental flight completely peaceful.",
+    "expected_output": "positive",
+    "category": "standard_positive",
+    "split": "test"
+  },
+  {
+    "input": "Broken on arrival and the company refused to accept an exchange.",
+    "expected_output": "negative",
+    "category": "standard_negative",
+    "split": "test"
+  },
+  {
+    "input": "It is not uncomfortable, in fact it feels quite pleasant on long runs.",
+    "expected_output": "positive",
+    "category": "negation",
+    "split": "test"
+  },
+  {
+    "input": "I did not enjoy a single minute of the presentation.",
+    "expected_output": "negative",
+    "category": "negation",
+    "split": "test"
+  },
+  {
+    "input": "The camera optics are world-class, though the companion mobile app is clunky.",
+    "expected_output": "positive",
+    "category": "mixed",
+    "split": "test"
+  },
+  {
+    "input": "The item comes in blue, black, and silver colorways.",
+    "expected_output": "neutral",
+    "category": "ambiguous",
+    "split": "test"
+  },
+  {
+    "input": "Superb, the server went down again right during black Friday checkout. Truly masterclass architecture.",
+    "expected_output": "negative",
+    "category": "sarcasm",
+    "split": "test"
+  },
+  {
+    "input": "Pure perfection.",
+    "expected_output": "positive",
+    "category": "short",
+    "split": "test"
+  },
+  {
+    "input": "Unbearable.",
+    "expected_output": "negative",
+    "category": "short",
+    "split": "test"
+  },
+  {
+    "input": "The package arrived in standard cardboard packaging with paper filling.",
+    "expected_output": "neutral",
+    "category": "ambiguous",
+    "split": "test"
+  }
+]
