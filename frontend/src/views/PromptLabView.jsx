@@ -63,6 +63,11 @@ export function PromptLabView({ onNavigate }) {
         const bestOrFirst = exp.best_prompt || exp.prompts[0];
         loadPromptData(bestOrFirst);
       }
+      // Restore persisted playground inputs for this experiment
+      const savedInput = localStorage.getItem(`promptlab_input_${expId}`);
+      const savedExpected = localStorage.getItem(`promptlab_expected_${expId}`);
+      if (savedInput) setTestInput(savedInput);
+      if (savedExpected) setTestExpected(savedExpected);
     } catch (err) {
       console.error(err);
     }
@@ -78,20 +83,45 @@ export function PromptLabView({ onNavigate }) {
   }
 
   async function handleSavePrompt() {
-    if (!selectedPromptId) return;
     setSaving(true);
     setStatusMsg(null);
     try {
       const labelsArray = validLabels.split(',').map(s => s.trim()).filter(Boolean);
-      await api.updatePrompt(selectedPromptId, {
-        name: promptName,
-        system_prompt: systemPrompt,
-        user_template: userTemplate,
-        output_format: outputFormat,
-        valid_labels: labelsArray
-      });
-      setStatusMsg({ type: 'success', text: 'Prompt updated successfully!' });
-      selectExperiment(selectedExpId);
+
+      // Persist playground test inputs for this experiment
+      if (selectedExpId) {
+        localStorage.setItem(`promptlab_input_${selectedExpId}`, testInput);
+        localStorage.setItem(`promptlab_expected_${selectedExpId}`, testExpected);
+      }
+
+      if (selectedPromptId) {
+        await api.updatePrompt(selectedPromptId, {
+          name: promptName,
+          system_prompt: systemPrompt,
+          user_template: userTemplate,
+          output_format: outputFormat,
+          valid_labels: labelsArray
+        });
+        setStatusMsg({ type: 'success', text: 'Prompt and live playground test saved to active experiment!' });
+        await selectExperiment(selectedExpId);
+      } else {
+        // Create new experiment and prompt if none selected
+        const expName = promptName || 'Custom Sentiment Experiment';
+        const newExp = await api.createExperiment({
+          name: expName,
+          description: 'Experiment created from Prompt Lab Workspace',
+          task_type: 'classification',
+          objective: 'maximize_accuracy',
+          initial_system_prompt: systemPrompt,
+          initial_user_template: userTemplate,
+          valid_labels: labelsArray
+        });
+        localStorage.setItem(`promptlab_input_${newExp.id}`, testInput);
+        localStorage.setItem(`promptlab_expected_${newExp.id}`, testExpected);
+        await loadExperiments();
+        await selectExperiment(newExp.id);
+        setStatusMsg({ type: 'success', text: `Created new experiment "${newExp.name}" with this prompt & playground test!` });
+      }
     } catch (err) {
       setStatusMsg({ type: 'error', text: err.message });
     } finally {
@@ -315,14 +345,31 @@ export function PromptLabView({ onNavigate }) {
             />
           </div>
 
-          <button 
-            className="btn btn-primary" 
-            style={{ width: '100%', marginBottom: 18 }}
-            onClick={handleRunSingle}
-            disabled={testingSingle || !testInput.trim()}
-          >
-            <Play size={16} /> {testingSingle ? 'Running Model...' : 'Test Prompt Live'}
-          </button>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
+            <button 
+              className="btn btn-primary" 
+              style={{ flex: 1 }}
+              onClick={handleRunSingle}
+              disabled={testingSingle || !testInput.trim()}
+            >
+              <Play size={16} /> {testingSingle ? 'Running Model...' : 'Test Prompt Live'}
+            </button>
+            <button 
+              className="btn btn-secondary btn-sm" 
+              title="Save this test input to the active experiment"
+              onClick={() => {
+                if (selectedExpId) {
+                  localStorage.setItem(`promptlab_input_${selectedExpId}`, testInput);
+                  localStorage.setItem(`promptlab_expected_${selectedExpId}`, testExpected);
+                  setStatusMsg({ type: 'success', text: 'Live test example saved to active experiment!' });
+                } else {
+                  handleSavePrompt();
+                }
+              }}
+            >
+              <Save size={14} /> Save Example
+            </button>
+          </div>
 
           {/* Test Execution Output */}
           {singleResult && (
